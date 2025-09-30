@@ -3,6 +3,7 @@ CMPS 2200  Assignment 2.
 See assignment-02.md for details.
 """
 from collections import defaultdict
+from functools import reduce
 import math
 
 #### Iterative solution
@@ -22,9 +23,13 @@ def parens_match_iterative(mylist):
     >>>parens_match_iterative(['('])
     False
     """
-    ### TODO
+    def iterate(f, x, a):
+        if len(a) == 0:
+            return x
+        else:
+            return iterate(f, f(x, a[0]), a[1:])
+    
     return iterate(parens_update, 0, mylist) == 0
-    ###
 
 
 def parens_update(current_output, next_input):
@@ -39,7 +44,6 @@ def parens_update(current_output, next_input):
     Returns:
       the updated value of `current_output`
     """
-    ###TODO
     if current_output == -math.inf:  # in an invalid state; carry it forward
         return current_output
     if next_input == '(':            # new open parens 
@@ -51,7 +55,6 @@ def parens_update(current_output, next_input):
             return current_output - 1
     else:                            # ignore non-parens input
         return current_output
-    ###
 
 
 
@@ -76,9 +79,11 @@ def parens_match_scan(mylist):
     False
     
     """
-    ###TODO
+    def plus(x,y):
+        return x + y
+
     history, last = scan(plus, 0, list(map(paren_map, mylist)))
-    return last == 0 and reduce(min_f, 0, history) >= 0
+    return last == 0 and reduce(min_f, history, 0) >= 0
     ###
 
 def scan(f, id_, a):
@@ -89,8 +94,8 @@ def scan(f, id_, a):
     the more efficient version is used for analyzing work/span.
     """
     return (
-            [reduce(f, id_, a[:i+1]) for i in range(len(a))],
-             reduce(f, id_, a)
+            [reduce(f, a[:i+1], id_) for i in range(len(a))],
+             reduce(f, a, id_)
            )
 
 def paren_map(x):
